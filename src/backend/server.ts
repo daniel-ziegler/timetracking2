@@ -7,11 +7,12 @@ import { deserializeEntries, serializeEntries } from "../lib/entries";
 import { delay, now, wait } from "../lib/util";
 
 const db_url = process.env.DATABASE_URL;
+const max_db_connections = process.env.MAX_DB_CONNECTIONS || 3;
 const runningLocally = db_url == undefined || db_url.search("localhost") > 0;
-const sql = postgres(
-  db_url,
-  runningLocally ? {} : { ssl: { rejectUnauthorized: false } }
-);
+const sql = postgres(db_url, {
+  ssl: runningLocally ? {} : { rejectUnauthorized: false }, // Heroku Postgres doesn't support certs
+  max: max_db_connections,
+});
 
 async function signup(credentials: Credentials): Promise<void> {
   await sql`INSERT INTO users (name, password_hash)
