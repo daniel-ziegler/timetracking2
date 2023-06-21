@@ -15,6 +15,7 @@ import { useWindow } from "../context/WindowContext";
 import { Entry, serializeEntries } from "../lib/entries";
 import { renderTime } from "../lib/format";
 import { typehint as type } from "../lib/util";
+import { putEntriesRemote } from "../lib/remoteDB";
 
 // entry, sent
 type EntryPair = [Entry, boolean];
@@ -97,17 +98,10 @@ const Mobile: Component = () => {
   const sync = async () => {
     if (!hasNetwork) return;
     setSending(true);
-    const entries = entryPairs.reduce(
-      (es, [entry, sent]) => (!sent ? [...es, entry] : es),
-      []
-    );
+    const entries = entryPairs.filter(([_, sent]) => !sent).map(([e, _]) => e);
 
-    const response = await axios.post(
-      "/api/update",
-      "entries=" + encodeURIComponent(serializeEntries(entries)),
-      { params: credentials }
-    );
-    if (response.data.status === "ok") {
+    const responseData = await putEntriesRemote(credentials, clientID, entries);
+    if (responseData.status === "ok") {
       setEntryPairs(
         entryPairs
           .map((entryPair) =>
