@@ -70,11 +70,13 @@ export const EntriesProvider = (props) => {
   ] = createSyncedStoreArray<Entry>(localDB, {
     query: getEntriesLocal,
     equals: (entriesA, entriesB) => {
-      const eq = entriesA.some(
-        (entryA, i) => entryEquals(entryA, entriesB[i]) !== true
+      const diff_infos = entriesA.map(
+        (entryA, i) => entryEquals(entryA, entriesB[i])
       );
-      if (eq) {
-        return eq;
+      const diff_info = diff_infos.find((x) => x !== true);
+      if (diff_info !== true) {
+        const [a, b, ..._] = diff_info;
+        return [a, b];
       } else {
         return true;
       }

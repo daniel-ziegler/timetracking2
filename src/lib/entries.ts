@@ -28,7 +28,7 @@ export function makeEntry(): Entry {
   };
 }
 
-export function entryEquals(a: Entry, b: Entry) {
+export function entryEquals(a: Entry, b: Entry): true | [Entry, Entry, ...any[]] {
   if ((a.before || "") !== (b.before || "")) {
     return [a, b, "before", a.before, b.before];
   } else if ((a.after || "") !== (b.after || "")) {
