@@ -8,18 +8,22 @@ import {
   Match,
   onMount,
   Show,
-  Switch
+  Switch,
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useWindow } from "../context/WindowContext";
-import { serializeEntries } from "../lib/entries";
+import { Entry, serializeEntries } from "../lib/entries";
 import { renderTime } from "../lib/format";
+import { typehint as type } from "../lib/util";
+
+// entry, sent
+type EntryPair = [Entry, boolean];
 
 function newUID() {
   return Math.random().toString(36).substring(2, 10);
 }
 
-function makeEntry() {
+function makeEntry(): Entry {
   return {
     before: "",
     after: "",
@@ -54,7 +58,7 @@ const deserializeEntryPairs = (s) => {
   });
 };
 
-const serializeEntryPairs = (pairs) => {
+const serializeEntryPairs = (pairs: EntryPair[]) => {
   return JSON.stringify(
     pairs.map(([x, sent]) => {
       return [
@@ -80,7 +84,9 @@ const Mobile: Component = () => {
     return null;
   }
 
-  const [entryPairs, setEntryPairs] = createStore(
+  const clientID = newUID();
+
+  const [entryPairs, setEntryPairs] = createStore<EntryPair[]>(
     (localStorage.getItem("entries")
       ? deserializeEntryPairs(localStorage.getItem("entries"))
       : []
@@ -106,7 +112,7 @@ const Mobile: Component = () => {
         entryPairs
           .map((entryPair) =>
             entries.some((e) => e.id === entryPair[0].id)
-              ? [entryPair[0], true]
+              ? type<EntryPair>([entryPair[0], true])
               : entryPair
           )
           .slice(0, 5)
@@ -119,7 +125,7 @@ const Mobile: Component = () => {
   const onclick = () => {
     const entry = makeEntry();
     // add entry to local storage
-    setEntryPairs([[entry, false], ...entryPairs].slice(0, 5));
+    setEntryPairs([type<EntryPair>([entry, false]), ...entryPairs].slice(0, 5));
     localStorage.setItem("entries", serializeEntryPairs(entryPairs));
 
     sync();

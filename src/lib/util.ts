@@ -105,3 +105,7 @@ export function numberOfOccurrences(str, pat) {
   }
   return n;
 }
+
+export function typehint<T>(x: T): T {
+  return x;
+}
