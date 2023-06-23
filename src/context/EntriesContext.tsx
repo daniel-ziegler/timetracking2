@@ -73,7 +73,7 @@ export const EntriesProvider = (props) => {
       const diff_infos = entriesA.map(
         (entryA, i) => entryEquals(entryA, entriesB[i])
       );
-      const diff_info = diff_infos.find((x) => x !== true);
+      const diff_info = diff_infos.find((x) => x !== true) || true;
       if (diff_info !== true) {
         const [a, b, ..._] = diff_info;
         return [a, b];
